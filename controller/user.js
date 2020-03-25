@@ -97,7 +97,7 @@ function loginUser(req,res){
 
 //Metodo que permite consultar los usuarios 
 function getUser(){
-
+//mesaje de prueba
 
 }
 
