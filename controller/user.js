@@ -96,10 +96,17 @@ function loginUser(req,res){
 
 
 //Metodo que permite consultar los usuarios 
-function getUser(){
+function getUser(req, res){
 //mesaje de prueba
 //actualizate tambien
- 
+    var userId = req.params.id;   
+    User.findById(userId, (err,user)=>{
+        if (err) return res.status(500).send({message:'Error en la petición'});
+
+        if (!user) return res.status(404).send({message:'El usuario no existe'});
+
+        return res.status(200).send({user});
+    });
 
 }
 
@@ -108,5 +115,6 @@ module.exports = {
     home,
     pruebas,
     saveUser,
-    loginUser
+    loginUser,
+    getUser
 }
