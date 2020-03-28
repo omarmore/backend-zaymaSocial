@@ -1,6 +1,10 @@
 'use strict'
 
 var bcrypt = require('bcryptjs');
+var mongoosePaginate = require('mongoose-pagination');
+var fs = require('fs');
+var path = require('path');
+
 var User = require('../models/user');
 var jwt = require('../services/jwt');
 
@@ -110,11 +114,135 @@ function getUser(req, res){
 
 }
 
+//Devolver un listado de usuaris paginados 
+function getUsers(req, res ){
+    var identity_user_id = req.user.sub;
+    var page = 1;
+    
+    if(req.params.page){
+        page = req.params.page;
+    }
+
+    var itemsPerPage = 5;
+
+    User.find().sort('id').paginate(page,itemsPerPage,(err,users,total)=>{
+        if(err) return res.status(500).send({message:'Error en la petición'});
+        if(!users) return res.status(404).send({message:'No hay usuarios disponibles'});
+        return res.status(200).send({
+            users,
+            total,
+            pages: Math.ceil(total/itemsPerPage)
+        }); 
+    });
+}
+
+
+//Editar datos de usuario   
+function updateUser(req, res){
+    var userId = req.params.id;
+    var update = req.body;
+    //borrar propiedad password
+    delete update.password;
+
+    if (userId != req.user.sub) {
+        return res.status(500).send({message : 'No tiene permimisos para actualizar los datos de este usuario'});
+    }
+
+    
+    //User.findByIdAndUpdate(userId,update,{new:true},(err, userUpdated)=>{
+    User.findByIdAndUpdate(userId,update,{new:true},(err, userUpdated)=>{
+
+        if(err) return res.status(500).send({message: 'Error en la petición'});
+        
+        if(!userUpdated) return res.status(404).send({message : 'No se ha podido actualizar el usuario '});
+
+        return res.status(200).send({user:userUpdated});
+
+    });
+
+}
+
+
+//Subir archivo de imgen/avatar de usuario
+function uploadImage(req,res){
+    var userId = req.params.id;
+
+    if (userId != req.user.sub) {
+        return res.status(500).send({message : 'No tiene permimisos para actualizar los datos de este usuario'});
+    }
+    if(req.files){
+
+        //Manejo del archivo cargado para conocer nombre y extención del archivo immmg
+        var file_path = req.files.img.path;
+        console.log(file_path);
+
+        var file_split = file_path.split('\\');
+        console.log(file_split);
+
+        var file_name = file_split[2];
+        console.log(file_name);
+
+        var ext_split = file_name.split('\.');
+        console.log(file_split);
+
+        var file_ext = ext_split[1];
+        console.log(file_ext);
+
+        if(userId != req.user.sub){
+            return removeFileUploads(res,file_path, 'No tiene permimisos para actualizar los datos del usuario');
+        }
+        
+
+        if(file_ext == 'png' || file_ext == 'jpg' || file_ext == 'jpeg' || file_ext == 'gif'){
+            //Actualizar img de usuario logeado
+            User.findByIdAndUpdate(userId, {img: file_name}, {new:true},(err,userUpdated)=>{
+                if(err) return res.status(500).send({message: 'Error en la petición'});
+        
+                if(!userUpdated) return res.status(404).send({message : 'No se ha podido actualizar el usuario '});
+        
+                return res.status(200).send({user:userUpdated});
+            });
+        }else{
+            return removeFileUploads(res,file_path,'Extensión no valida');
+        }
+
+    }else{
+        return res.status(200).send({message : 'No se han subido imagenes'}); 
+    }
+}
+
+
+function removeFileUploads(res,file_path,mensaje){
+    fs.unlink(file_path,(err)=>{
+        return res.status(200).send({message: mensaje});
+    });
+}
+
+
+//obtener imagen 
+function getImageFile(req,res){
+    var image_file = req.params.imageFile;
+    var path_file = './upload/users/' + image_file;
+
+    fs.exists(path_file,(exists) =>{
+        if(exists){
+            res.sendFile(path.resolve(path_file));
+        }else{
+            res.status(200).send({message:'No existe la imagen'});
+        }
+    });
+
+
+}
 
 module.exports = {
     home,
     pruebas,
     saveUser,
     loginUser,
-    getUser
+    getUser,
+    getUsers,
+    updateUser,
+    uploadImage,
+    getImageFile
 }

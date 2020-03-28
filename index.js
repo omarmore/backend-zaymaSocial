@@ -10,7 +10,7 @@ const db = "mongodb+srv://zaymaApp:zayma123@cluster0-0ecxw.azure.mongodb.net/tes
 
 
 //conexion a la base de datos de mongoDB
-mongoose.connect(db, { useNewUrlParser: true, useUnifiedTopology: true },err=>{
+mongoose.connect(db, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false  },err=>{
     if (err) {
         console.error('Error! '+err);
     }else{
