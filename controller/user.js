@@ -6,6 +6,7 @@ var fs = require('fs');
 var path = require('path');
 
 var User = require('../models/user');
+var Follow = require('../models/follow');
 var jwt = require('../services/jwt');
 
 
@@ -108,11 +109,73 @@ function getUser(req, res){
         if (err) return res.status(500).send({message:'Error en la petición'});
 
         if (!user) return res.status(404).send({message:'El usuario no existe'});
-
-        return res.status(200).send({user});
+        
+        followThisUser(req.user.sub , userId).then((value) =>{
+             user.password = ':)';
+             return   res.status(200).send({
+                user, 
+                following : value.following,
+                followed  : value.followed
+            });
+            
+        });
     });
 
 }
+
+
+
+//function async para consultar los usuaris que sigo y los que me siguen
+async function followThisUser(identity_user_id, user_id){
+    var following = await Follow.findOne({"user" : identity_user_id, "followed":user_id}).exec().then((follow)=>{
+        return follow;
+    }).catch((err) =>{
+        return handleError
+    });
+    
+    var followed = await Follow.findOne({"user": user_id , "followed":identity_user_id}).exec().then((follow)=>{
+        return follow;
+    }).catch((err) =>{
+        return handleError
+    });
+    
+    return {
+        following : following,
+        followed  : followed
+    }
+}
+
+//funciton de informacion que cuando nos siguen
+const getCounters = (req,res)=>{
+    var userId = req.user.sub;
+
+    if(req.params.id){
+        userId = req.params.id;
+    }
+
+    getCountFollow(userId).then((value)=>{
+        return res.status(200).send(value);
+    });
+}
+
+
+const  getCountFollow = async (user_id) => {
+    try {
+        let following = await Follow.countDocuments({"user":user_id},(err,result) => {return result});
+        let followed = await Follow.countDocuments({"followed":user_id},(err,result) => {return result});
+        return {
+            following,
+            followed
+        }
+    } catch (e) {
+        console.log(e);
+    }
+
+}
+    
+
+
+
 
 //Devolver un listado de usuaris paginados 
 function getUsers(req, res ){
@@ -128,14 +191,55 @@ function getUsers(req, res ){
     User.find().sort('id').paginate(page,itemsPerPage,(err,users,total)=>{
         if(err) return res.status(500).send({message:'Error en la petición'});
         if(!users) return res.status(404).send({message:'No hay usuarios disponibles'});
-        return res.status(200).send({
-            users,
-            total,
-            pages: Math.ceil(total/itemsPerPage)
-        }); 
+        
+        followsUserIds(identity_user_id).then((value) => {
+            return res.status(200).send({
+                users,
+                users_following : value.following,
+                user_follow_me  : value.followed,
+                total,
+                pages: Math.ceil(total/itemsPerPage)
+            }); 
+        });
+
     });
 }
 
+
+async function followsUserIds(user_id){
+    try {
+        var following = await Follow.find({"user":user_id}).select({'_id':0,'__v':0,'user':0}).exec()
+        .then((follows) => {return follows;}).catch((err)=>{return handleError(err)});
+
+
+        var followed = await Follow.find({"followed":user_id}).select({'_id':0,'__v':0,'followed':0}).exec()
+        .then((follows) => {return follows;}).catch((err)=>{return handleError(err)});
+
+        //Procesar following Ids
+
+        var following_clean= [];
+        following.forEach((follow) => {
+            following_clean.push(follow.followed);
+        });
+
+        //Procesar followed Ids 
+
+        var followed_clean =[];
+        followed.forEach((follow)=>{
+            followed_clean.push(follow.user);
+        });
+
+        return {
+            following : following_clean,
+            followed  : followed_clean
+        }
+    } catch (e) {
+        console.log(e);
+    }
+
+    
+
+}
 
 //Editar datos de usuario   
 function updateUser(req, res){
@@ -242,6 +346,7 @@ module.exports = {
     loginUser,
     getUser,
     getUsers,
+    getCounters,
     updateUser,
     uploadImage,
     getImageFile

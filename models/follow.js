@@ -6,8 +6,8 @@ var Schema = mongoose.Schema;
 
 var FollowSchema = new Schema({
      
-    usuario: { type: Schema.Types.ObjectId, ref: 'Usuario', required: true },
-    usuarioFollow: { type: Schema.Types.ObjectId, ref: 'Usuario', required: true },
+    user: { type: Schema.Types.ObjectId, ref: 'Usuario', required: true },
+    followed: { type: Schema.Types.ObjectId, ref: 'Usuario', required: true },
     
 });
 

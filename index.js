@@ -6,6 +6,7 @@ var app = require('./app');
 var port = 3000;
 //var bodyParser = require('body-parser');
 const db = "mongodb+srv://zaymaApp:zayma123@cluster0-0ecxw.azure.mongodb.net/test?retryWrites=true&w=majority"
+           //"mongodb+srv://zaymaApp:zayma123@cluster0-0ecxw.azure.mongodb.net/test?retryWrites=true&w=majority" 190.14.252.180/32
 
 
 
