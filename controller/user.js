@@ -5,8 +5,10 @@ var mongoosePaginate = require('mongoose-pagination');
 var fs = require('fs');
 var path = require('path');
 
+
 var User = require('../models/user');
 var Follow = require('../models/follow');
+var Publication = require('../models/publicacion');
 var jwt = require('../services/jwt');
 
 
@@ -163,9 +165,13 @@ const  getCountFollow = async (user_id) => {
     try {
         let following = await Follow.countDocuments({"user":user_id},(err,result) => {return result});
         let followed = await Follow.countDocuments({"followed":user_id},(err,result) => {return result});
+        let publication  = await Publication.countDocuments({"usuario":user_id},(err,result) => {return result});
+        
+
         return {
             following,
-            followed
+            followed,
+            publication
         }
     } catch (e) {
         console.log(e);

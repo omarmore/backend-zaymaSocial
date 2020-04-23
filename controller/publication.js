@@ -4,6 +4,8 @@ var path   = require('path');
 var fs     = require('fs');
 var moment = require('moment');
 var mongoosePaginate = require('mongoose-pagination');
+var path = require('path');
+
 
 var Publication = require('../models/publicacion');
 var User = require('../models/user');
@@ -98,6 +100,7 @@ function deletePublication(req, res){
         return res.status(200).send({message : 'Publicación eliminar correctamente '});
     });
 
+    //la funcion remove enta pronto a ser deprecada por tal motivo se utiliza el metodo deleteOne
     /*Publication.find({'usuario':req.user.sub,'_id':publicationId}).remove( (err, publiactionRemoved) =>{
         if(err) return res.status(500).send({message : 'Error al eliminar la publicación'});
         if(!publiactionRemoved) return res.status(404).send({message : 'No se ha eliminado la publicación'});
@@ -105,12 +108,91 @@ function deletePublication(req, res){
     });*/
 }
 
+
+//Subir archivo para las plublicaciones  de usuario
+function uploadImage(req,res){
+    var publicationId = req.params.id;
+
+  
+    if(req.files){
+
+        //Manejo del archivo cargado para conocer nombre y extención del archivo immmg
+        var file_path = req.files.file.path;
+        console.log(file_path);
+
+        var file_split = file_path.split('\\');
+        console.log(file_split);
+
+        var file_name = file_split[2];
+        console.log(file_name);
+
+        var ext_split = file_name.split('\.');
+        console.log(file_split);
+
+        var file_ext = ext_split[1];
+        console.log(file_ext);
+
+
+
+        if(file_ext == 'png' || file_ext == 'jpg' || file_ext == 'jpeg' || file_ext == 'gif'){
+            //Actualizar img de la publication
+
+            Publication.find({'usuario':req.user.sub, '_id': publicationId}).exec((err, publication) =>{
+                if(publication){
+                    Publication.findByIdAndUpdate(publicationId, {file: file_name}, {new:true},(err,publicationUpdated)=>{
+                        if(err) return res.status(500).send({message: 'Error en la petición'});
+                
+                        if(!publicationUpdated) return res.status(404).send({message : 'No se ha podido actualizar el usuario '});
+                
+                        return res.status(200).send({publication:publicationUpdated});
+                    });
+                }else{
+                    return removeFileUploads(res,file_path,'No tiene permisos para actualizar la imagen');
+                }
+            });
+
+        }else{
+            return removeFileUploads(res,file_path,'Extensión no valida');
+        }
+
+    }else{
+        return res.status(200).send({message : 'No se han subido imagenes'}); 
+    }
+}
+
+
+function removeFileUploads(res,file_path,mensaje){
+    fs.unlink(file_path,(err)=>{
+        return res.status(200).send({message: mensaje});
+    });
+}
+
+
+//obtener imagen 
+function getImageFile(req,res){
+    var image_file = req.params.imageFile;
+    var path_file = './upload/publications/' + image_file;
+
+    fs.exists(path_file,(exists) =>{
+        if(exists){
+            res.sendFile(path.resolve(path_file));
+        }else{
+            res.status(200).send({message:'No existe la imagen'});
+        }
+    });
+
+
+}
+
+
 module.exports = {
 
     probando,
     savePublication,
     getPublications,
     getPublication,
-    deletePublication
+    deletePublication,
+    uploadImage,
+    getImageFile
 
 }
