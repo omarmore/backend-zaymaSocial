@@ -45,39 +45,72 @@ function savePublication(req, res){
     }
 
     var itemsPerPage = 4;
-    
-    Follow.find({user: req.user.sub}).populate('followed').exec((err,follows)=>{
-        if(err) return res.status(500).send({message : 'Error devolver el seguimiento'});
-        
         var follows_clean = [];
-
-        follows.forEach((follow) => {
-            follows_clean.push(follow.followed);
-        });   
+    Follow.find({user: req.user.sub}).populate('followed').exec().then((follows)=>{
+        for(let i in follows){
+            follows_clean.push(follows[i].followed._id);
+        }
         console.log(follows_clean);
-        
-        /*Publication.find({user:{"$in" : follows_clean}}).sort('created_at').populate('user').paginate(page,itemsPerPage,(err, publications,total)=>{
-            if(err) return res.status(500).send({message : 'Error devolver el publicaciones'});
-            if(!publications) return res.status(404).send({message : 'No hay publicaciones'});
 
+         Publication.find({usuario:{$in:follows_clean}}).sort('created_at').populate('user').paginate(page,itemsPerPage,(err,publicacions,total)=>{
+            if(err) return res.status(500).sent({message:'Error devolver publicaciones '+err});
+            if(!publicacions) return res.status(404).send({message : 'No hay publicaciones'});
             return res.status(200).send({
-                total_items:total,
-                pages:Math.ceil(total/itemsPerPage),
-                page:page,
-                publications
-            });
+                total_items : total,
+                pages : Math.ceil(total/itemsPerPage),
+                page : page,
+                publicacions
+            })
+
+        });
+
+
+    //consulta detalle para identificar el error 
+        /*Publication.find({usuario:{$in:follows_clean}}).populate('user').exec((err,publicacions) =>{
             
+            if(err) return res.status(500).send({massage : 'Error en el servidor'});
+            if(!publicacions) return res.status(404).send({massage : 'No sigues a ningun usuario'});
+                console.log(publicacions);
+            return res.status(200).send({publicacions});  
+             
         });*/
-
+    
+        
     });
- } 
+ }
 
+function getPublication(req,res){
+    var publicationId = req.params.id;
 
+    Publication.findById(publicationId,(err,publication)=>{
+        if(err) return res.status(500).send({message : 'Error al devolver publicaciones '});
+        if(!publication) return res.status(404).send({message :'No existe la publicación '});
+        return res.status(200).send({publication});
+    });
+
+}
+
+function deletePublication(req, res){
+    var publicationId = req.params.id;
+    Publication.deleteOne({'usuario':req.user.sub,'_id':publicationId}, (err, publiactionRemoved) =>{
+        if(err) return res.status(500).send({message : 'Error al eliminar la publicación'});
+        if(!publiactionRemoved) return res.status(404).send({message : 'No se ha eliminado la publicación'});
+        return res.status(200).send({message : 'Publicación eliminar correctamente '});
+    });
+
+    /*Publication.find({'usuario':req.user.sub,'_id':publicationId}).remove( (err, publiactionRemoved) =>{
+        if(err) return res.status(500).send({message : 'Error al eliminar la publicación'});
+        if(!publiactionRemoved) return res.status(404).send({message : 'No se ha eliminado la publicación'});
+        return res.status(200).send({message : 'Publicación eliminar correctamente '});
+    });*/
+}
 
 module.exports = {
 
     probando,
     savePublication,
-    getPublications
+    getPublications,
+    getPublication,
+    deletePublication
 
 }

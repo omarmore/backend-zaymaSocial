@@ -11,12 +11,14 @@ var rolesValidos = {
 };
 
 var usuarioSchema = new Schema({
+//agregar campo de cambiar contraseña
+
     nombre: { type: String, required: [true, 'El nombre es necesario'] }, 
     nick:{ type: String},
     identificacion : { type: String, unique:true, required: [true, 'La identicíon es necesaria'] },
     email: { type: String, unique: true, required: [true, 'El correo es necesario'] },
     password: { type: String, required: [true, 'La contraseña es necesaria'] },
-    role: { type: String, required: true, default: 'USER_ROLE', enum: rolesValidos },
+    role: { type: String, required: true, default: 'USER_ROLE', enum: rolesValidos }, 
     img: { type: String }
     //google: { type: Boolean, default: false }
 });
