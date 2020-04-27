@@ -6,7 +6,7 @@ var api = express.Router();
 var md_auth = require('../middleware/authenticated');
 
 var multipart = require('connect-multiparty');
-var md_upload = multipart({uploadDir : './upload/users'});
+var md_upload = multipart({uploadDir : './upload/plublications'});
 
 api.get('/probando-pub',md_auth.ensureAuth, PublicationController.probando);
 api.post('/publication',md_auth.ensureAuth, PublicationController.savePublication);
