@@ -22,7 +22,11 @@ app.use((req, res, next) => {
 
 
 //Rutas
-require("./router/departamento.routes")(app);
+require('./router/departamento.routes')(app);
+require('./router/user.routes')(app);
+require('./router/follow.routes')(app);
+require('./router/message.routes')(app);
+require('./router/publication.routes')(app);
 
 //app.use();
 app.get("/", (req, res) => {
