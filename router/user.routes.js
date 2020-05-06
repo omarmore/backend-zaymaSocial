@@ -6,16 +6,20 @@ module.exports = app => {
     var md_upload = multipart({ uploadDir: './upload/users' });
 
 
-    router.get('/home', UserController.home);
-    router.get('/pruebas', md_auth.ensureAuth, UserController.pruebas);
-    router.post('/register', UserController.saveUser);
+    router.post('/', UserController.create);
+    router.get('/:id', md_auth.ensureAuth, UserController.findOne);
+    router.get('/', md_auth.ensureAuth, UserController.findAll);
+    router.put('/:id', UserController.update);
+
     router.post('/login', UserController.loginUser);
-    router.get('/user/:id', md_auth.ensureAuth, UserController.getUser);
-    router.get('/users/:page?', UserController.getUsers);
-    router.get('/counters/:id?', md_auth.ensureAuth, UserController.getCounters);
-    router.put('/update-user/:id', md_auth.ensureAuth, UserController.updateUser);
     router.post('/update-imgen-user/:id', [md_auth.ensureAuth, md_upload], UserController.uploadImage);
     router.get('/get-image-user/:imageFile', UserController.getImageFile);
 
-    app.use("/api", router);
+
+    // router.get('/home', UserController.home);
+    // router.get('/pruebas', md_auth.ensureAuth, UserController.pruebas);
+    // router.get('/counters/:id?', md_auth.ensureAuth, UserController.getCounters);
+    // console.log(md_auth);
+
+    app.use("/api/users", router);
 };
