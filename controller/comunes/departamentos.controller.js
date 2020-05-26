@@ -47,6 +47,8 @@ exports.findAll = (req, res) => {
     const offset = parseInt(req.headers['offset']);
     const buscar = req.headers['buscar'];
 
+    console.log(req.headers);
+
     Departamento.
     find({ descripcion: { $regex: buscar, $options: 'i' } }).
     limit(limite).

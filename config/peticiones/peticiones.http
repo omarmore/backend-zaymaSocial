@@ -1,0 +1,131 @@
+@baseUrl = http://localhost:3000/api
+@limite = 5
+@offset = 0
+@buscar = 
+@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1ZWJjNzlmMjhjOGI0MDFmMDRlOGJjYzEiLCJuaWNrIjoiT21hciIsImlkZW50aWZpY2FjaW9uIjoiMTIzNDU2IiwiZW1haWwiOiJhQGFzYWQuY29tIiwicm9sZSI6IkFETUlOX1JPTEUiLCJpbWciOiJhYiIsImlhdCI6MTU4OTQxMDI5OH0.RQkkzzUTPw7uZxMX-RYm0i-f1uzls6ZwcKawPtDuXdM
+
+##### Inicio usuarios
+###Login
+@UsuarioId=5eb202131a4c7b2eac7d6a36
+POST {{baseUrl}}/users/login
+content-type: application/json
+
+{
+    "identificacion": "123456",
+    "password": "123456",
+    "gettoken": true
+}
+
+### Crear usuario
+
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+	"nombre": "Omar",
+	"nick":"Omar",
+    "identificacion": "123456",
+    "email": "a@asad.com",
+    "password": "123456",
+    "img": "ab",
+    "role": "ADMIN_ROLE",
+    "departamento":{"id":"5ea9dcb937dac95380e18942", "descripcion":"Gestión de información"}
+}
+
+### Actualizar usuario
+PUT {{baseUrl}}/users/{{UsuarioId}}
+Content-Type: application/json
+
+{
+	"nombre": "Omar1",
+	"nick":"Omar1",
+    "identificacion": "123456ds",
+    "email": "a@asasd.com",
+    "password": "123456",
+    "img": "ab",
+    "role": "ADMIN_ROLE"
+}
+
+###Listar usuarios
+GET {{baseUrl}}/users
+Authorization: {{token}}
+limite: {{limite}}
+offset: {{offset}}
+buscar: {{buscar}}
+
+### Obtener un usuario
+
+GET {{baseUrl}}/users/{{UsuarioId}}
+Authorization: {{token}}
+##### Fin usuarios
+
+
+##### Inicio Publicaciones
+@urlPublicaciones = {{baseUrl}}/publicaciones
+@idPublicaciones = 5ebc80c2d71dd20c28470a64
+### Crear publicacion
+POST {{urlPublicaciones}}
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+    "text": "Esta es una publicacion hecha desde VSC"
+}
+
+### Listar todas las publicaciones publicas
+GET {{urlPublicaciones}}
+limite: {{limite}}
+offset: {{offset}}
+buscar: {{buscar}}
+
+### Listar todas las publicaciones por publicar
+GET {{urlPublicaciones}}/publicar
+limite: {{limite}}
+offset: {{offset}}
+buscar: {{buscar}}
+
+### Listar todas las publicaciones por usuario sin publicar
+GET {{urlPublicaciones}}/usuario
+Authorization: {{token}}
+limite: {{limite}}
+offset: {{offset}}
+buscar: {{buscar}}
+
+### Editar publicaciones
+### Dependiendo de lo que se envié se debe hacer un servicio solo para el estado
+PUT {{urlPublicaciones}}/{{idPublicaciones}}
+Content-Type: application/json
+
+{
+    "publico":true
+}
+
+##### Fin Publicaciones
+
+##### Inicio Departamentos
+### Listar departamentos
+GET {{baseUrl}}/departamentos
+limite: {{limite}}
+offset: {{offset}}
+buscar: {{buscar}}
+
+### Crear departamentos
+POST {{baseUrl}}/departamentos
+content-type: application/json
+
+{
+    "descripcion": "Gestión de infirmación",
+    "estado": true
+}
+
+### Actualizar departamento
+@departamentoID=5ebc77598c8b401f04e8bcbd
+PUT {{baseUrl}}/departamentos/{{departamentoID}}
+content-type: application/json
+
+{
+    "descripcion": "Gestión de Información",
+    "estado": true
+}
+
+##### Fin departamentos

@@ -108,10 +108,10 @@ exports.findAllUsuario = (req, res) => {
     });
 };
 
-/**
- * TODO En el frontEnd dependiendo de lo que mande en el body se pueden actualizar los solamente los estados
- * Entonces hay que crear un servicio para solo mandar en el body el estado y otro servicio para modificar solo el texto
- **/
+
+// TODO En el frontEnd dependiendo de lo que mande en el body se pueden actualizar los solamente los estados
+// Entonces hay que crear un servicio en el frontEnd para solo mandar en el body el estado y otro servicio para modificar solo el texto
+
 exports.update = (req, res) => {
     idPublicacion = req.params.id;
 

@@ -7,9 +7,10 @@ var mongoose = require('mongoose')
 var app = require('./app');
 var port = 3000;
 //var bodyParser = require('body-parser');
-const db = "mongodb+srv://zaymaApp:zayma123@cluster0-0ecxw.azure.mongodb.net/test?retryWrites=true&w=majority"
-    //"mongodb+srv://zaymaApp:zayma123@cluster0-0ecxw.azure.mongodb.net/test?retryWrites=true&w=majority" 190.14.252.180/32
-
+// const db = "mongodb+srv://zaymaApp:zayma123@cluster0-0ecxw.azure.mongodb.net/test?retryWrites=true&w=majority" //conexion de Omar
+const db = "mongodb+srv://adreso:010190@cluster0-di16z.mongodb.net/test?retryWrites=true&w=majority";
+//"mongodb+srv://zaymaApp:zayma123@cluster0-0ecxw.azure.mongodb.net/test?retryWrites=true&w=majority" 190.14.252.180/32
+// mongoose.connect('mongodb+srv://adreso:010190@cluster0-di16z.mongodb.net/test?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true });
 
 
 //conexion a la base de datos de mongoDB
